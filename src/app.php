@@ -8,6 +8,8 @@ const CYCLES = ['weekly' => 'Every week', 'monthly' => 'Every month', 'yearly' =
 session_start();
 ob_start();
 
+require __DIR__ . '/currency.php';
+
 function config(): array
 {
     static $config = null;
@@ -48,11 +50,6 @@ set_exception_handler(function (Throwable $e) {
 function e(?string $text): string
 {
     return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
-}
-
-function money(float $amount): string
-{
-    return number_format($amount, 2) . ' ' . e(config()['currency']);
 }
 
 function csrf_token(): string
@@ -133,12 +130,15 @@ function validate(array $in): array
     $cycle = $in['cycle'] ?? '';
     $date = $in['next_renewal'] ?? '';
     $category = trim($in['category'] ?? '');
+    $currency = $in['currency'] ?? '';
 
     if ($name === '') $errors['name'] = 'Give it a name, like Netflix or Spotify.';
     elseif (mb_strlen($name) > 80) $errors['name'] = 'Keep the name under 80 characters.';
 
     if ($price === '' || !is_numeric($price) || (float) $price < 0) $errors['price'] = 'Enter the price as a number, like 4.99.';
     elseif ((float) $price > 99999999) $errors['price'] = 'That price looks too big. Check it and try again.';
+
+    if (!isset(CURRENCIES[$currency])) $errors['currency'] = 'Choose the currency you pay in.';
 
     if (!isset(CYCLES[$cycle])) $errors['cycle'] = 'Choose how often it renews.';
 
@@ -147,5 +147,5 @@ function validate(array $in): array
 
     if (mb_strlen($category) > 40) $errors['category'] = 'Keep the category under 40 characters.';
 
-    return [compact('name', 'price', 'cycle', 'category') + ['next_renewal' => $date], $errors];
+    return [compact('name', 'price', 'currency', 'cycle', 'category') + ['next_renewal' => $date], $errors];
 }

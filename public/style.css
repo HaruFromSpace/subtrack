@@ -121,6 +121,34 @@ a:hover { text-decoration-thickness: 2px; }
     color: var(--tag-muted);
 }
 
+/* Which currency the totals use */
+.home-currency { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 16px; font-size: 0.9375rem; }
+.home-currency label { font-weight: 700; }
+.home-currency select {
+    width: auto;
+    min-height: 40px;
+    padding: 6px 10px;
+    border: 0;
+    border-bottom: 2px solid var(--tag-ink);
+    background: var(--tag-soft);
+    color: var(--tag-ink);
+}
+.home-currency select:focus { background: rgb(18 18 18 / 0.16); }
+.home-currency button {
+    min-height: 40px;
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--tag-ink);
+    color: var(--tag);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 160ms var(--ease-out);
+}
+.home-currency button:active { transform: scale(0.97); }
+.rates-note { margin: 10px 0 0; font-size: 0.875rem; color: var(--tag-muted); }
+
 /* Next 30 days, one cell per day */
 .month { margin-top: 40px; }
 .strip {
@@ -183,7 +211,9 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .soon-when { font-weight: 700; }
 .soon-name { overflow-wrap: anywhere; }
-.soon-price { font-size: 1.375rem; font-weight: 800; font-stretch: 70%; }
+.soon-price { font-size: 1.375rem; font-weight: 800; font-stretch: 70%; white-space: nowrap; }
+.soon-price small, .unit-line { font-size: 0.875rem; font-weight: 700; font-stretch: 100%; }
+.unit-line { margin-top: 4px; }
 
 /* Below the band */
 .main { padding-top: 48px; padding-bottom: 96px; }
@@ -245,7 +275,7 @@ h2 {
 .add { position: sticky; top: 24px; }
 .add form { display: grid; gap: 16px; border-top: 2px solid var(--text); padding-top: 18px; }
 .field { display: grid; gap: 6px; align-content: start; }
-.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
 
 label { font-size: 0.9375rem; font-weight: 700; }
 .optional { font-weight: 400; color: var(--muted); }
@@ -314,6 +344,6 @@ input[aria-invalid="true"], select[aria-invalid="true"] { border-bottom-color: v
 @media (prefers-reduced-motion: reduce) {
     .strip .charge { animation-name: fade; animation-delay: 0ms; }
     .flash { animation-name: fade; }
-    .button:active { transform: none; }
+    .button:active, .home-currency button:active { transform: none; }
 }
 @keyframes fade { from { opacity: 0; } }

@@ -13,13 +13,13 @@ if ($errors) {
     redirect('index.php' . ($id ? "?edit=$id" : '') . '#form');
 }
 
-$values = [$data['name'], $data['price'], $data['cycle'], $data['next_renewal'], $data['category']];
+$values = [$data['name'], $data['price'], $data['currency'], $data['cycle'], $data['next_renewal'], $data['category']];
 if ($id) {
-    $stmt = db()->prepare('UPDATE subscriptions SET name = ?, price = ?, cycle = ?, next_renewal = ?, category = ? WHERE id = ?');
+    $stmt = db()->prepare('UPDATE subscriptions SET name = ?, price = ?, currency = ?, cycle = ?, next_renewal = ?, category = ? WHERE id = ?');
     $stmt->execute([...$values, $id]);
     flash("Saved your changes to {$data['name']}.");
 } else {
-    $stmt = db()->prepare('INSERT INTO subscriptions (name, price, cycle, next_renewal, category) VALUES (?, ?, ?, ?, ?)');
+    $stmt = db()->prepare('INSERT INTO subscriptions (name, price, currency, cycle, next_renewal, category) VALUES (?, ?, ?, ?, ?, ?)');
     $stmt->execute($values);
     flash("Added {$data['name']}.");
 }

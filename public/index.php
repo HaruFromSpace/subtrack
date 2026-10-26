@@ -2,6 +2,8 @@
 require __DIR__ . '/../src/app.php';
 
 $today = new DateTimeImmutable('today');
+$home = home_currency();
+$rates = rates();
 $subs = db()->query('SELECT * FROM subscriptions ORDER BY next_renewal, name')->fetchAll();
 
 // Renewal dates that have passed move on to the next one
@@ -17,7 +19,7 @@ foreach ($subs as &$sub) {
 unset($sub);
 usort($subs, fn($a, $b) => [$a['days'], $a['name']] <=> [$b['days'], $b['name']]);
 
-$monthly = array_sum(array_map('monthly_cost', $subs));
+$monthly = array_sum(array_map(fn($s) => monthly_home($s, $home), $subs));
 $soon = array_filter($subs, fn($s) => $s['days'] <= config()['warn_days']);
 
 // Every charge in the next 30 days, day by day, for the strip at the top
@@ -28,7 +30,7 @@ foreach ($subs as $s) {
     $step = ['weekly' => '+1 week', 'monthly' => '+1 month', 'yearly' => '+1 year'][$s['cycle']];
     for ($d = new DateTimeImmutable($s['next_renewal']); ($n = days_until($d->format('Y-m-d'), $today)) <= HORIZON; $d = $d->modify($step)) {
         $days[$n][] = $s['name'];
-        $nextMonthSpend += (float) $s['price'];
+        $nextMonthSpend += convert((float) $s['price'], $s['currency'], $home);
     }
 }
 

@@ -6,7 +6,7 @@ return [
     'db_user' => 'subtrack',
     'db_pass' => 'change-me',
 
-    // Shown next to every price
+    // The currency totals start in. You can switch it on the page too.
     'currency' => 'JOD',
 
     // Renewals this many days away or fewer show up under "Coming up"

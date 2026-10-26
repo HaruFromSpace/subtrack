@@ -1,7 +1,14 @@
 <?php
 $title = 'subtrack';
 $count = count($subs);
-$currency = e(config()['currency']);
+$currency = e($home);
+$currencyOptions = function (string $selected, bool $short = false) {
+    $out = '';
+    foreach (CURRENCIES as $code => [$label]) {
+        $out .= '<option value="' . $code . '"' . ($code === $selected ? ' selected' : '') . '>' . $code . ($short ? '' : ' · ' . e($label)) . '</option>';
+    }
+    return $out;
+};
 
 $field = function (string $key) use ($errors) {
     return isset($errors[$key]) ? ' aria-invalid="true" aria-describedby="' . $key . 'Error"' : '';
@@ -25,6 +32,19 @@ require __DIR__ . '/head.php';
                     <?= number_format($monthly * 12, 2) ?> <?= $currency ?> a year across <?= $count ?> subscription<?= $count === 1 ? '' : 's' ?>.
                     The next 30 days take <?= number_format($nextMonthSpend, 2) ?> <?= $currency ?>.
                 </p>
+                <form class="home-currency" method="post" action="currency.php">
+                    <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+                    <label for="home">Show totals in</label>
+                    <select id="home" name="home"><?= $currencyOptions($home) ?></select>
+                    <button type="submit">Switch</button>
+                </form>
+                <?php if ($rates['source'] !== 'live'): ?>
+                    <p class="rates-note">
+                        <?= $rates['source'] === 'saved'
+                            ? 'Exchange rates couldn\'t be updated just now, so totals use the rates saved on ' . (new DateTimeImmutable($rates['date']))->format('j M') . '.'
+                            : 'Exchange rates couldn\'t be loaded, so totals in other currencies use rough built-in rates for now.' ?>
+                    </p>
+                <?php endif; ?>
 
                 <section class="month" aria-labelledby="monthHeading">
                     <h2 id="monthHeading" class="visually-hidden">The next 30 days</h2>
@@ -46,7 +66,7 @@ require __DIR__ . '/head.php';
                                 <li>
                                     <span class="soon-when"><?= ucfirst(when($s['days'])) ?></span>
                                     <span class="soon-name"><?= e($s['name']) ?></span>
-                                    <span class="soon-price"><?= number_format((float) $s['price'], 2) ?></span>
+                                    <span class="soon-price"><?= number_format((float) $s['price'], 2) ?> <small><?= e($s['currency']) ?></small></span>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
@@ -87,7 +107,10 @@ require __DIR__ . '/head.php';
                                 </div>
                                 <div class="sub-cost">
                                     <span class="price"><?= number_format((float) $s['price'], 2) ?></span>
-                                    <span class="meta"><?= $s['cycle'] === 'monthly' ? "$currency a month" : 'about ' . number_format(monthly_cost($s), 2) . " $currency a month" ?></span>
+                                    <span class="unit-line"><?= e($s['currency']) ?> <?= ['weekly' => 'a week', 'monthly' => 'a month', 'yearly' => 'a year'][$s['cycle']] ?></span>
+                                    <?php if ($s['cycle'] !== 'monthly' || $s['currency'] !== $home): ?>
+                                        <span class="meta">about <?= number_format(monthly_home($s, $home), 2) ?> <?= $currency ?> a month</span>
+                                    <?php endif; ?>
                                 </div>
                             </li>
                         <?php endforeach; ?>
@@ -109,10 +132,18 @@ require __DIR__ . '/head.php';
 
                     <div class="pair">
                         <div class="field">
-                            <label for="price">Price in <?= $currency ?></label>
+                            <label for="price">Price</label>
                             <input id="price" name="price" type="text" inputmode="decimal" placeholder="4.99" value="<?= e($old['price'] ?? '') ?>"<?= $field('price') ?>>
                             <?= $error('price') ?>
                         </div>
+                        <div class="field">
+                            <label for="currency">Currency</label>
+                            <select id="currency" name="currency"<?= $field('currency') ?>><?= $currencyOptions($old['currency'] ?? $home, true) ?></select>
+                            <?= $error('currency') ?>
+                        </div>
+                    </div>
+
+                    <div class="pair">
                         <div class="field">
                             <label for="cycle">Renews</label>
                             <select id="cycle" name="cycle"<?= $field('cycle') ?>>
@@ -122,12 +153,11 @@ require __DIR__ . '/head.php';
                             </select>
                             <?= $error('cycle') ?>
                         </div>
-                    </div>
-
-                    <div class="field">
-                        <label for="next_renewal">Next renewal</label>
-                        <input id="next_renewal" name="next_renewal" type="date" value="<?= e($old['next_renewal'] ?? '') ?>"<?= $field('next_renewal') ?>>
-                        <?= $error('next_renewal') ?>
+                        <div class="field">
+                            <label for="next_renewal">Next renewal</label>
+                            <input id="next_renewal" name="next_renewal" type="date" value="<?= e($old['next_renewal'] ?? '') ?>"<?= $field('next_renewal') ?>>
+                            <?= $error('next_renewal') ?>
+                        </div>
                     </div>
 
                     <div class="field">
