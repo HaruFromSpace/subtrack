@@ -20,6 +20,18 @@ usort($subs, fn($a, $b) => [$a['days'], $a['name']] <=> [$b['days'], $b['name']]
 $monthly = array_sum(array_map('monthly_cost', $subs));
 $soon = array_filter($subs, fn($s) => $s['days'] <= config()['warn_days']);
 
+// Every charge in the next 30 days, day by day, for the strip at the top
+const HORIZON = 30;
+$days = array_fill(0, HORIZON + 1, []);
+$nextMonthSpend = 0.0;
+foreach ($subs as $s) {
+    $step = ['weekly' => '+1 week', 'monthly' => '+1 month', 'yearly' => '+1 year'][$s['cycle']];
+    for ($d = new DateTimeImmutable($s['next_renewal']); ($n = days_until($d->format('Y-m-d'), $today)) <= HORIZON; $d = $d->modify($step)) {
+        $days[$n][] = $s['name'];
+        $nextMonthSpend += (float) $s['price'];
+    }
+}
+
 // The form is either adding a new one or editing one from the list
 $editing = null;
 if (isset($_GET['edit'])) {

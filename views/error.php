@@ -1,10 +1,11 @@
 <?php $title = 'Something went wrong · subtrack'; require __DIR__ . '/head.php'; ?>
-    <main class="page">
-        <section class="problem">
-            <h1>Something went wrong</h1>
-            <p><?= e($message) ?></p>
-            <p><a href="index.php">Try again</a></p>
-        </section>
-    </main>
+    <header class="band">
+        <div class="wrap">
+            <a class="wordmark" href="index.php">subtrack</a>
+            <h1 class="headline">Something went wrong</h1>
+            <p class="band-note"><?= e($message) ?></p>
+            <p class="band-note"><a href="index.php">Try again</a></p>
+        </div>
+    </header>
 </body>
 </html>

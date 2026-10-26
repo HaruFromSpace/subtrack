@@ -8,7 +8,7 @@ A small web app for keeping track of your subscriptions. Add what you pay for an
 
 - Add, edit and remove subscriptions, with a price, how often they renew and the next renewal date.
 - Shows your monthly and yearly total. Weekly and yearly plans are converted to a monthly cost, so everything adds up properly.
-- Lists anything renewing in the next 7 days at the top.
+- A strip of the next 30 days marks every day money goes out, and anything renewing in the next 7 days is listed under it.
 - When a renewal date passes, it moves on to the next one by itself.
 - Friendly messages for mistakes in the form, and a plain error page if the database can't be reached.
 - Works on phones, and follows your light or dark setting.
